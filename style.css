@@ -464,6 +464,99 @@ button:focus-visible {
   outline-offset: 2px;
 }
 
+/* Footer Styles */
+.game-footer {
+  background: var(--surface);
+  border-top: 2px solid var(--primary-color);
+  margin-top: 3rem;
+  padding: 2rem 1rem;
+  text-align: center;
+  box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.footer-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.footer-content p {
+  margin: 0.5rem 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.footer-content p:first-child {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-links a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+  transition: var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.footer-links a:hover {
+  color: var(--secondary-color);
+  background: rgba(99, 102, 241, 0.1);
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+.github-icon {
+  font-size: 1.1rem;
+  animation: pulse 2s infinite;
+}
+
+.footer-separator {
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.version {
+  background: linear-gradient(135deg, var(--success-color), #059669);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive Footer */
+@media (max-width: 640px) {
+  .game-footer {
+    padding: 1.5rem 1rem;
+    margin-top: 2rem;
+  }
+  
+  .footer-links {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .footer-separator {
+    display: none;
+  }
+}
+
 /* Modern Notification Card */
 .notification-card {
   position: fixed;

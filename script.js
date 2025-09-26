@@ -18,6 +18,12 @@ const wrongSound = new Audio("assets/wrong.mp3");
 
 // Setup screen functionality
 document.addEventListener('DOMContentLoaded', function() {
+    // Set current year in footer
+    const currentYearElement = document.getElementById('current-year');
+    if (currentYearElement) {
+        currentYearElement.textContent = new Date().getFullYear();
+    }
+    
     initializeSetupScreen();
     displayLeaderboard();
 });
@@ -134,12 +140,10 @@ function checkAnswer(i) {
   const q = questions[current];
   if (i === q.correct) {
     correctSound.play();
-    showGif("correct");
     showNotification(true, "Correct!", q.funny);
     scores[currentPlayer]++;
   } else {
     wrongSound.play();
-    showGif("wrong");
     showNotification(false, "Oops!", `The correct answer was: ${q.answers[q.correct]}`);
   }
   
