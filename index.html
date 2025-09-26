@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funny Trivia Game</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>😂 Funny Trivia Game 😂</h1>
+        
+        <!-- Setup Screen -->
+        <div id="setup-screen" class="setup-screen">
+            <h2>🎮 Game Setup</h2>
+            
+            <div class="setup-section">
+                <h3>👥 Number of Players</h3>
+                <div class="setup-buttons">
+                    <button class="setup-btn active" data-players="1">1 Player</button>
+                    <button class="setup-btn" data-players="2">2 Players</button>
+                    <button class="setup-btn" data-players="3">3 Players</button>
+                    <button class="setup-btn" data-players="4">4 Players</button>
+                </div>
+            </div>
+            
+            <div class="setup-section">
+                <h3>🎯 Difficulty Level</h3>
+                <div class="setup-buttons difficulty-buttons">
+                    <button class="setup-btn active" data-difficulty="easy">Easy</button>
+                    <button class="setup-btn" data-difficulty="medium">Medium</button>
+                    <button class="setup-btn" data-difficulty="hard">Hard</button>
+                </div>
+            </div>
+            
+            <div class="setup-section">
+                <h3>❓ Number of Questions</h3>
+                <div class="setup-buttons">
+                    <button class="setup-btn" data-questions="5">5 Questions</button>
+                    <button class="setup-btn active" data-questions="10">10 Questions</button>
+                    <button class="setup-btn" data-questions="15">15 Questions</button>
+                    <button class="setup-btn" data-questions="20">20 Questions</button>
+                </div>
+            </div>
+            
+            <button id="start-game" class="start-game-btn">🚀 Start Game!</button>
+        </div>
+        
+        <!-- Game Screen (initially hidden) -->
+        <div id="game-screen" class="game-screen hidden">
+            <div class="old-difficulty-buttons hidden">
+                <button onclick="selectDifficulty('easy')">Easy</button>
+                <button onclick="selectDifficulty('medium')">Medium</button>
+                <button onclick="selectDifficulty('hard')">Hard</button>
+            </div>
+        <div id="player-turn">Player 1's Turn</div>
+        <div id="timer">Time: 15</div>
+        <div id="question">Select a difficulty level to start playing! 🎮</div>
+        <div id="answers"></div>
+        <div id="gif-container" style="margin:10px;"></div>
+        <div id="notification-card" class="notification-card hidden">
+            <div class="notification-content">
+                <div class="notification-icon"></div>
+                <div class="notification-text">
+                    <h3 class="notification-title"></h3>
+                    <p class="notification-message"></p>
+                </div>
+                <button class="notification-close">×</button>
+            </div>
+        </div>
+        <div id="score">Player 1: 0 | Player 2: 0</div>
+        <button id="restart" style="display:none;">Play Again</button>
+        <h2>🏆 Leaderboard</h2>
+        <ul id="leaderboard"></ul>
+        </div> <!-- Close game-screen -->
+    </div> <!-- Close game-container -->
+    <script src="questions-easy.js"></script>
+    <script src="questions-medium.js"></script>
+    <script src="questions-hard.js"></script>
+    <script src="script.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+    </script>
+</body>
+</html>
