@@ -71,8 +71,13 @@
                 <button onclick="selectDifficulty('medium')">Medium</button>
                 <button onclick="selectDifficulty('hard')">Hard</button>
             </div>
-        <div id="player-turn">Player 1's Turn</div>
-        <div id="timer">Time: 15</div>
+        <div class="game-controls">
+            <div class="status-group">
+                <div id="player-turn">Player 1's Turn</div>
+                <div id="timer">Time: 15</div>
+            </div>
+            <button id="stop-game" class="stop-game-btn" aria-label="Stop current game and return to setup">⏹ Stop Game</button>
+        </div>
         <div id="question">Select a difficulty level to start playing! 🎮</div>
         <div id="answers"></div>
         <div id="gif-container" style="margin:10px;"></div>

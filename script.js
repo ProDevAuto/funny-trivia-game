@@ -71,6 +71,14 @@ function initializeSetupScreen() {
     
     // Start game button
     document.getElementById('start-game').addEventListener('click', startGame);
+
+  // Stop game button (added dynamically in game screen)
+  const stopBtn = document.getElementById('stop-game');
+  if (stopBtn) {
+    stopBtn.addEventListener('click', () => {
+      stopCurrentGame();
+    });
+  }
 }
 
 async function fetchCategories() {
@@ -122,6 +130,29 @@ function startGame() {
     
     // Update score display for multiple players
     updateScoreDisplay();
+}
+
+// Gracefully stop an in-progress game and return to setup without saving scores
+function stopCurrentGame() {
+  clearInterval(timer);
+  // Provide brief feedback
+  showNotification(false, 'Game Stopped', 'You ended the current session. Returning to setup.');
+  setTimeout(() => {
+    // Reset basics
+    current = 0;
+    scores = [];
+    currentPlayer = 0;
+    questions = [];
+    // Hide game, show setup
+    document.getElementById('game-screen').classList.add('hidden');
+    document.getElementById('setup-screen').classList.remove('hidden');
+    // Clear question/answers UI
+    document.getElementById('question').textContent = 'Select settings and start a new game!';
+    document.getElementById('answers').innerHTML = '';
+    document.getElementById('timer').textContent = '';
+    document.getElementById('player-turn').textContent = '';
+    document.getElementById('restart').style.display = 'none';
+  }, 1200);
 }
 
 // Randomly select questions from the chosen difficulty
