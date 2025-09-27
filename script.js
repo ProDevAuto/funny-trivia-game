@@ -10,6 +10,9 @@ let gameSettings = {
   useAPI: true     // toggle automatically based on category
 };
 
+// Allowlist of known category IDs from OpenTDB (defensive validation)
+const ALLOWED_CATEGORY_IDS = new Set([9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32]);
+
 let current = 0;
 let scores = [];
 let currentPlayer = 0;
@@ -171,20 +174,7 @@ function selectDifficulty(level) {
 // NEW: Fetch from OpenTDB API
 async function fetchAPIQuestions() {
   try {
-    const amount = gameSettings.questionCount;
-    // Map local difficulty to API difficulty (same strings)
-    const difficulty = gameSettings.difficulty; // easy|medium|hard
-    const base = 'https://opentdb.com/api.php';
-    const params = new URLSearchParams();
-    params.set('amount', amount.toString());
-    if (difficulty !== 'any') params.set('difficulty', difficulty);
-    // Type: any -> don't send type param (lets API choose multiple choice & boolean). We want multiple options, so we can ask for multiple choice only
-    params.set('type', 'multiple');
-    if (gameSettings.category !== 'any' && gameSettings.category !== 'local') {
-      params.set('category', gameSettings.category);
-    }
-    // Encoding default (URL legacy) not specifying
-    const url = `${base}?${params.toString()}`;
+    const url = buildAPIUrl();
     const res = await fetch(url);
     if (!res.ok) throw new Error('Network response not ok');
     const data = await res.json();
@@ -223,6 +213,24 @@ function decodeHTML(str) {
   return txt.value;
 }
 
+function buildAPIUrl(){
+  const amount = Math.min(Math.max(parseInt(gameSettings.questionCount) || 10, 1), 50); // clamp 1..50
+  const base = 'https://opentdb.com/api.php';
+  const params = new URLSearchParams();
+  params.set('amount', amount.toString());
+  if (gameSettings.difficulty && gameSettings.difficulty !== 'any') {
+    params.set('difficulty', gameSettings.difficulty);
+  }
+  if (gameSettings.category && gameSettings.category !== 'any' && gameSettings.category !== 'local') {
+    const cid = Number(gameSettings.category);
+    if (ALLOWED_CATEGORY_IDS.has(cid)) {
+      params.set('category', cid.toString());
+    }
+  }
+  params.set('type', 'multiple');
+  return `${base}?${params.toString()}`;
+}
+
 function generateFunnyLine(category) {
   const lines = [
     `Category: ${category}. Trivia wizard!`,
@@ -253,12 +261,13 @@ function loadQuestion() {
     return;
   }
   const q = questions[current];
+  // Always use textContent to avoid HTML injection/XSS
   document.getElementById("question").textContent = q.question;
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
   q.answers.forEach((ans, i) => {
     const btn = document.createElement("button");
-    btn.textContent = ans;
+    btn.textContent = ans; // ensures plain text
     btn.onclick = () => checkAnswer(i);
     answersDiv.appendChild(btn);
   });

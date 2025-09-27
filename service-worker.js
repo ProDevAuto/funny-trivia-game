@@ -38,12 +38,14 @@ self.addEventListener('fetch', event => {
 	const req = event.request;
 	const url = new URL(req.url);
 
-	// Only handle same-origin
-	if (url.origin !== location.origin) return;
+	// Skip cross-origin (e.g., OpenTDB) entirely - do not cache external dynamic data
+	if (url.origin !== location.origin) {
+		return; // allow normal network behavior
+	}
 
-	// For app shell & dynamic assets: try network first
+	// Network-first for HTML/CSS/JS for freshness
 	if (req.destination === 'document' || /\.(?:css|js)$/i.test(url.pathname)) {
-		event.respondWith(
+		return event.respondWith(
 			fetch(req)
 				.then(res => {
 					const copy = res.clone();
@@ -52,15 +54,19 @@ self.addEventListener('fetch', event => {
 				})
 				.catch(() => caches.match(req))
 		);
-		return;
 	}
 
-	// Other assets: cache first
-	event.respondWith(
-		caches.match(req).then(cached => cached || fetch(req).then(res => {
-			const copy = res.clone();
-			caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-			return res;
-		}))
-	);
+	// Cache-first for static media (images, audio, gifs)
+	if (/\.(?:png|jpg|jpeg|gif|mp3|svg|woff2?)$/i.test(url.pathname)) {
+		return event.respondWith(
+			caches.match(req).then(cached => cached || fetch(req).then(res => {
+				const copy = res.clone();
+				caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
+				return res;
+			}))
+		);
+	}
+
+	// Fallback: try cache, else network (no new caching for unknown types)
+	event.respondWith(caches.match(req).then(c => c || fetch(req)));
 });
