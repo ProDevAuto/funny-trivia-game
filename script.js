@@ -274,6 +274,13 @@ function loadQuestion() {
   document.getElementById("player-turn").textContent = `Player ${
     currentPlayer + 1
   }'s Turn`;
+  // Smooth scroll to top for the first question (helps after long setup scroll)
+  if (current === 0) {
+    // Use rAF to ensure DOM has updated before scrolling
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
   startTimer();
 }
 function startTimer() {
