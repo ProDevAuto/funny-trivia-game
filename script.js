@@ -5,7 +5,9 @@ let questions = [];
 let gameSettings = {
     players: 1,
     difficulty: 'easy',
-    questionCount: 10
+  questionCount: 10,
+  category: 'any', // 'any' | category id | 'local'
+  useAPI: true     // toggle automatically based on category
 };
 
 let current = 0;
@@ -44,14 +46,56 @@ function initializeSetupScreen() {
             if (this.dataset.difficulty) {
                 gameSettings.difficulty = this.dataset.difficulty;
             }
-            if (this.dataset.questions) {
+      if (this.dataset.questions) {
                 gameSettings.questionCount = parseInt(this.dataset.questions);
             }
+      if (this.dataset.category) {
+        gameSettings.category = this.dataset.category;
+        // If user picks local we disable API usage
+        gameSettings.useAPI = this.dataset.category !== 'local';
+      }
         });
     });
+
+  // Category dropdown
+  const categorySelect = document.getElementById('category-select');
+  if (categorySelect) {
+    categorySelect.addEventListener('change', () => {
+      const value = categorySelect.value;
+      gameSettings.category = value;
+      gameSettings.useAPI = value !== 'local';
+    });
+    // Fetch categories dynamically
+    fetchCategories();
+  }
     
     // Start game button
     document.getElementById('start-game').addEventListener('click', startGame);
+}
+
+async function fetchCategories() {
+  const loadingEl = document.getElementById('category-loading');
+  try {
+    if (loadingEl) loadingEl.textContent = 'Loading categories...';
+    const res = await fetch('https://opentdb.com/api_category.php');
+    if (!res.ok) throw new Error('Failed to fetch category list');
+    const data = await res.json();
+    if (!data.trivia_categories) throw new Error('Invalid category payload');
+    const select = document.getElementById('category-select');
+    if (!select) return;
+    // Remove previously injected dynamic options (keep any & local at top)
+    // Start adding after first two static options
+    data.trivia_categories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat.id;
+      opt.textContent = cat.name;
+      select.appendChild(opt);
+    });
+    if (loadingEl) loadingEl.textContent = '';
+  } catch (e) {
+    console.error(e);
+    if (loadingEl) loadingEl.textContent = 'Could not load categories (using defaults).';
+  }
 }
 
 function startGame() {
@@ -64,24 +108,98 @@ function startGame() {
     document.getElementById('setup-screen').classList.add('hidden');
     document.getElementById('game-screen').classList.remove('hidden');
     
-    // Load questions based on difficulty
+  // Load questions - API first if enabled
+  if (gameSettings.useAPI) {
+    fetchAPIQuestions().then(success => {
+      if (!success) {
+        // Fallback to local
+        selectDifficulty(gameSettings.difficulty);
+      }
+    });
+  } else {
     selectDifficulty(gameSettings.difficulty);
+  }
     
     // Update score display for multiple players
     updateScoreDisplay();
 }
 
 // Randomly select questions from the chosen difficulty
+// ORIGINAL LOCAL QUESTION LOADING (kept for fallback)
 function selectDifficulty(level) {
   let sourceQuestions = [];
   if (level === "easy") sourceQuestions = [...easyQuestions];
   if (level === "medium") sourceQuestions = [...mediumQuestions];
   if (level === "hard") sourceQuestions = [...hardQuestions];
 
-  // Randomly select questions from the available pool
   questions = getRandomQuestions(sourceQuestions, gameSettings.questionCount);
   shuffleQuestions();
   loadQuestion();
+}
+
+// NEW: Fetch from OpenTDB API
+async function fetchAPIQuestions() {
+  try {
+    const amount = gameSettings.questionCount;
+    // Map local difficulty to API difficulty (same strings)
+    const difficulty = gameSettings.difficulty; // easy|medium|hard
+    const base = 'https://opentdb.com/api.php';
+    const params = new URLSearchParams();
+    params.set('amount', amount.toString());
+    if (difficulty !== 'any') params.set('difficulty', difficulty);
+    // Type: any -> don't send type param (lets API choose multiple choice & boolean). We want multiple options, so we can ask for multiple choice only
+    params.set('type', 'multiple');
+    if (gameSettings.category !== 'any' && gameSettings.category !== 'local') {
+      params.set('category', gameSettings.category);
+    }
+    // Encoding default (URL legacy) not specifying
+    const url = `${base}?${params.toString()}`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Network response not ok');
+    const data = await res.json();
+    if (data.response_code !== 0 || !Array.isArray(data.results) || data.results.length === 0) {
+      console.warn('API returned no usable data, falling back');
+      return false;
+    }
+    // Transform API questions to local format
+    questions = data.results.map(q => {
+      const allAnswers = [...q.incorrect_answers, q.correct_answer];
+      // Shuffle answers deterministically per question
+      const shuffled = allAnswers
+        .map(a => ({ a, sort: Math.random() }))
+        .sort((x, y) => x.sort - y.sort)
+        .map(o => o.a);
+      const correctIndex = shuffled.indexOf(q.correct_answer);
+      return {
+        question: decodeHTML(q.question),
+        answers: shuffled.map(decodeHTML),
+        correct: correctIndex,
+        funny: generateFunnyLine(q.category)
+      };
+    });
+    shuffleQuestions();
+    loadQuestion();
+    return true;
+  } catch (err) {
+    console.error('Failed to fetch API questions', err);
+    return false;
+  }
+}
+
+function decodeHTML(str) {
+  const txt = document.createElement('textarea');
+  txt.innerHTML = str;
+  return txt.value;
+}
+
+function generateFunnyLine(category) {
+  const lines = [
+    `Category: ${category}. Trivia wizard!`,
+    `You conquered ${category}!`,
+    `${category} knowledge flex!`,
+    `Brains + ${category} = 🔥`,
+  ];
+  return lines[Math.floor(Math.random() * lines.length)];
 }
 
 // Get random questions from the pool

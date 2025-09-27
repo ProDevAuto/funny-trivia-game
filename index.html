@@ -18,6 +18,19 @@
         <!-- Setup Screen -->
         <div id="setup-screen" class="setup-screen">
             <h2>🎮 Game Setup</h2>
+            <!-- Category Selection (API Dropdown) -->
+            <div class="setup-section" id="category-section">
+                <h3>🗂️ Category</h3>
+                <div class="category-select-wrapper">
+                    <label for="category-select" class="visually-hidden">Select Category</label>
+                    <select id="category-select" class="category-select" aria-label="Select trivia category">
+                        <option value="any" selected>Any Category (Mixed)</option>
+                        <option value="local">Local (Built‑in Questions)</option>
+                    </select>
+                    <div id="category-loading" class="category-loading">Loading categories...</div>
+                </div>
+                <p class="category-hint">Tip: Choose "Local" to use the built‑in funny question sets offline. Other categories fetch fresh questions from OpenTDB.</p>
+            </div>
             
             <div class="setup-section">
                 <h3>👥 Number of Players</h3>
