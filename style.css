@@ -52,7 +52,7 @@ body::before {
 }
 
 .game-container {
-  max-width: 600px;
+  max-width: 1200px;
   margin: 0 auto;
   background: rgba(30, 41, 59, 0.8);
   backdrop-filter: blur(20px);
@@ -76,15 +76,49 @@ body::before {
 }
 
 h1 {
-  font-size: clamp(2rem, 5vw, 3rem);
+  font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 800;
+  /* Remove gradient from whole heading so emojis keep their native color */
+  color: var(--text-primary);
+  margin-bottom: 2.5rem;
+  text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
+  animation: glow 2s ease-in-out infinite alternate;
+  text-align: center;
+  white-space: normal;
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Apply gradient only to the main title text */
+.title-text {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 2.5rem;
-  text-shadow: 0 0 30px rgba(99, 102, 241, 0.3);
-  animation: glow 2s ease-in-out infinite alternate;
+  line-height: 1.1;
+  position: relative;
+}
+
+.title-emoji {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+  animation: emojiPop 3s ease-in-out infinite;
+  /* Ensure visibility regardless of inherited properties */
+  -webkit-text-fill-color: currentColor;
+  color: var(--secondary-color);
+  line-height: 1;
+}
+
+.title-emoji:first-of-type { animation-delay: 0.3s; }
+.title-emoji:last-of-type { animation-delay: 0.9s; }
+
+@keyframes emojiPop {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.08); }
 }
 
 @keyframes glow {
@@ -122,6 +156,8 @@ h2 {
 .setup-screen {
   text-align: center;
   animation: slideUp 0.6s ease-out;
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 .game-screen {
@@ -141,11 +177,17 @@ h2 {
 }
 
 .setup-section {
-  margin: 2.5rem 0;
-  padding: 2rem;
+  margin: 2rem 0;
+  padding: 1.8rem;
   background: var(--surface);
   border-radius: var(--border-radius);
   border-left: 4px solid var(--secondary-color);
+  transition: var(--transition);
+}
+
+.setup-section:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
 
 .setup-section h3 {
@@ -158,9 +200,9 @@ h2 {
 
 .setup-buttons {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
   gap: 1rem;
-  justify-items: center;
+  justify-items: stretch;
 }
 
 .setup-btn {
@@ -168,12 +210,12 @@ h2 {
   color: var(--text-primary);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 1rem 1.5rem;
-  font-size: 1rem;
+  padding: 0.8rem 1.2rem;
+  font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
   transition: var(--transition);
-  min-width: 120px;
+  min-width: 110px;
   position: relative;
   overflow: hidden;
 }
@@ -431,21 +473,42 @@ button:active {
 }
 
 /* Responsive Design */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   body {
     padding: 1rem;
   }
   
   .game-container {
-    padding: 2rem 1.5rem;
+    padding: 2rem 1rem;
   }
   
-  .difficulty-buttons {
-    grid-template-columns: 1fr;
-  }
-  
+  /* Ensure title stays on one line even on mobile */
   h1 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
+    line-height: 1.2;
+    margin-bottom: 2rem;
+  }
+  
+  .setup-section {
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+  }
+  
+  .setup-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Make buttons even smaller on mobile */
+  .setup-buttons {
+    grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+    gap: 0.6rem;
+  }
+  
+  .setup-btn {
+    padding: 0.7rem 1rem;
+    font-size: 0.85rem;
+    min-width: 90px;
   }
   
   #question {
@@ -455,6 +518,29 @@ button:active {
   
   button {
     padding: 1rem;
+  }
+}
+
+/* Extra responsiveness for very small screens */
+@media (max-width: 480px) {
+  h1 {
+    font-size: clamp(1.3rem, 7vw, 1.8rem);
+    padding: 0 0.5rem;
+  }
+  
+  .setup-screen h2 {
+    font-size: 1.5rem;
+  }
+  
+  .setup-buttons {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.7rem;
+  }
+  
+  .setup-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    min-width: 80px;
   }
 }
 
