@@ -199,6 +199,15 @@ h2 {
   text-align: center;
 }
 
+/* Nickname Inputs */
+.nickname-wrapper { margin-top:1.5rem; display:grid; gap:0.75rem; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); }
+.nickname-field { display:flex; flex-direction:column; align-items:stretch; gap:0.35rem; background:var(--surface-light); padding:0.9rem 1rem 1rem; border-radius:12px; border:1px solid rgba(255,255,255,0.08); position:relative; overflow:hidden; }
+.nickname-field:before { content:''; position:absolute; inset:0; background:linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0)); pointer-events:none; }
+.nickname-field label { font-size:0.7rem; letter-spacing:1px; text-transform:uppercase; font-weight:600; color:var(--text-secondary); }
+.nickname-field input { background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.12); color:var(--text-primary); padding:0.55rem 0.7rem; border-radius:8px; font-size:0.85rem; font-weight:600; outline:none; transition:var(--transition); }
+.nickname-field input:focus { border-color:var(--primary-color); box-shadow:0 0 0 3px rgba(99,102,241,0.35); }
+.nickname-hint { grid-column:1/-1; font-size:0.65rem; text-align:left; color:var(--text-secondary); opacity:.75; margin-top:-0.35rem; }
+
 /* Category Dropdown */
 .category-select-wrapper {
   display: flex;

@@ -7,7 +7,8 @@ let gameSettings = {
     difficulty: 'easy',
   questionCount: 10,
   category: 'any', // 'any' | category id | 'local'
-  useAPI: true     // toggle automatically based on category
+  useAPI: true,    // toggle automatically based on category
+  nicknames: []    // player nicknames aligned by index
 };
 
 // Allowlist of known category IDs from OpenTDB (defensive validation)
@@ -45,6 +46,8 @@ function initializeSetupScreen() {
             // Update game settings
             if (this.dataset.players) {
                 gameSettings.players = parseInt(this.dataset.players);
+    ensureNicknamesLength();
+    renderNicknameInputs();
             }
             if (this.dataset.difficulty) {
                 gameSettings.difficulty = this.dataset.difficulty;
@@ -59,6 +62,10 @@ function initializeSetupScreen() {
       }
         });
     });
+
+  // Initial nickname UI
+  ensureNicknamesLength();
+  renderNicknameInputs();
 
   // Category dropdown
   const categorySelect = document.getElementById('category-select');
@@ -114,6 +121,12 @@ function startGame() {
     scores = new Array(gameSettings.players).fill(0);
     current = 0;
     currentPlayer = 0;
+  // Capture latest nickname values before starting
+  const nicknameInputs = document.querySelectorAll('.nickname-field input');
+  nicknameInputs.forEach((inp, idx) => {
+    const val = inp.value.trim();
+    if (val) gameSettings.nicknames[idx] = sanitizeNickname(val);
+  });
     
     // Hide setup screen and show game screen
     document.getElementById('setup-screen').classList.add('hidden');
@@ -249,7 +262,7 @@ function getRandomQuestions(pool, count) {
 
 function updateScoreDisplay() {
     const scoreElement = document.getElementById('score');
-    const scoreText = scores.map((score, index) => `Player ${index + 1}: ${score}`).join(' | ');
+  const scoreText = scores.map((score, index) => `${getPlayerLabel(index)}: ${score}`).join(' | ');
     scoreElement.textContent = scoreText;
 }
 function shuffleQuestions() {
@@ -272,7 +285,7 @@ function loadQuestion() {
     answersDiv.appendChild(btn);
   });
   document.getElementById("player-turn").textContent = `Player ${
-    currentPlayer + 1
+    getPlayerLabel(currentPlayer)
   }'s Turn`;
   updateProgress();
   hideGif();
@@ -413,18 +426,18 @@ function nextQuestion() {
 function endGame() {
   // Find the winner(s) for multiple players
   const maxScore = Math.max(...scores);
-  const winners = scores.map((score, index) => score === maxScore ? index + 1 : null).filter(player => player !== null);
+  const winners = scores.map((score, index) => score === maxScore ? index : null).filter(player => player !== null);
   
   let winnerText;
   if (winners.length === 1) {
-    winnerText = `Player ${winners[0]} wins! 🏆`;
+    winnerText = `${getPlayerLabel(winners[0])} wins! 🏆`;
   } else if (winners.length === scores.length) {
     winnerText = "Everyone tied! 🤝";
   } else {
-    winnerText = `Players ${winners.join(', ')} tied! 🤝`;
+    winnerText = `${winners.map(i=>getPlayerLabel(i)).join(', ')} tied! 🤝`;
   }
   
-  const finalScoreText = scores.map((score, index) => `Player ${index + 1}: ${score}`).join(' | ');
+  const finalScoreText = scores.map((score, index) => `${getPlayerLabel(index)}: ${score}`).join(' | ');
   
   document.getElementById("question").textContent = `Game Over! ${winnerText} Final Score: ${finalScoreText}`;
   document.getElementById("answers").innerHTML = "";
@@ -454,6 +467,7 @@ function updateLeaderboard() {
     total: totalScore,
     difficulty: gameSettings.difficulty,
     questions: gameSettings.questionCount,
+    nicknames: [...gameSettings.nicknames],
     date: new Date().toLocaleString(),
   };
   
@@ -475,7 +489,8 @@ function displayLeaderboard() {
     // Handle both old and new leaderboard formats
     let scoresText;
     if (entry.scores) {
-      scoresText = entry.scores.map((score, idx) => `P${idx + 1}: ${score}`).join(', ');
+      const nicks = entry.nicknames && entry.nicknames.length ? entry.nicknames : [];
+      scoresText = entry.scores.map((score, idx) => `${nicks[idx] ? nicks[idx] : 'P'+(idx+1)}: ${score}`).join(', ');
     } else {
       scoresText = `P1: ${entry.p1}, P2: ${entry.p2}`;
     }
@@ -484,4 +499,49 @@ function displayLeaderboard() {
     li.textContent = `${medal} ${scoresText} (Total: ${entry.total})${difficultyText} - ${entry.date}`;
     list.appendChild(li);
   });
+}
+
+/* ===== Nickname Helpers ===== */
+function ensureNicknamesLength(){
+  if (!Array.isArray(gameSettings.nicknames)) gameSettings.nicknames = [];
+  while (gameSettings.nicknames.length < gameSettings.players) {
+    gameSettings.nicknames.push(`Player ${gameSettings.nicknames.length+1}`);
+  }
+  if (gameSettings.nicknames.length > gameSettings.players) {
+    gameSettings.nicknames = gameSettings.nicknames.slice(0, gameSettings.players);
+  }
+}
+function renderNicknameInputs(){
+  const wrapper = document.getElementById('nickname-wrapper');
+  if(!wrapper) return;
+  wrapper.innerHTML = '';
+  for(let i=0;i<gameSettings.players;i++){
+    const div = document.createElement('div');
+    div.className = 'nickname-field';
+    const id = `nickname-${i+1}`;
+    div.innerHTML = `<label for="${id}">PLAYER ${i+1} NAME</label>`;
+    const inp = document.createElement('input');
+    inp.id = id;
+    inp.maxLength = 14;
+    inp.placeholder = `Player ${i+1}`;
+    inp.value = gameSettings.nicknames[i] || `Player ${i+1}`;
+    inp.addEventListener('input', () => {
+      const val = inp.value.trim();
+      gameSettings.nicknames[i] = val ? sanitizeNickname(val) : `Player ${i+1}`;
+    });
+    div.appendChild(inp);
+    wrapper.appendChild(div);
+  }
+  // Add hint
+  const hint = document.createElement('div');
+  hint.className = 'nickname-hint';
+  hint.textContent = 'Customize player nicknames (max 14 chars).';
+  wrapper.appendChild(hint);
+}
+function sanitizeNickname(str){
+  // Allow letters, numbers, spaces, limited punctuation
+  return str.replace(/[^\w \-!@#$%&*?]/g,'').slice(0,14);
+}
+function getPlayerLabel(index){
+  return gameSettings.nicknames[index] || `Player ${index+1}`;
 }
