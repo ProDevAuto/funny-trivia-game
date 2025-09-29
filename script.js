@@ -274,6 +274,8 @@ function loadQuestion() {
   document.getElementById("player-turn").textContent = `Player ${
     currentPlayer + 1
   }'s Turn`;
+  updateProgress();
+  hideGif();
   // Smooth scroll to top for the first question (helps after long setup scroll)
   if (current === 0) {
     // Use rAF to ensure DOM has updated before scrolling
@@ -319,8 +321,22 @@ function checkAnswer(i) {
 }
 function showGif(type) {
   const gifContainer = document.getElementById("gif-container");
-  gifContainer.innerHTML = `<img src="assets/gifs/${type}.gif" alt="${type}" />`;
-  setTimeout(() => (gifContainer.innerHTML = ""), 2000);
+  gifContainer.innerHTML = `<img src="assets/gifs/${type}.gif" alt="${type} feedback" />`;
+  gifContainer.classList.add('show');
+  setTimeout(() => hideGif(), 2000);
+}
+
+function hideGif(){
+  const gifContainer = document.getElementById("gif-container");
+  gifContainer.classList.remove('show');
+  gifContainer.innerHTML = '';
+}
+
+function updateProgress(){
+  const bar = document.getElementById('progress-bar');
+  if(!bar || !questions.length) return;
+  const pct = (current / questions.length) * 100;
+  bar.style.width = pct + '%';
 }
 
 function showNotification(isCorrect, title, message) {

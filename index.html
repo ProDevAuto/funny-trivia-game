@@ -83,9 +83,11 @@
             </div>
             <button id="stop-game" class="stop-game-btn" aria-label="Stop current game and return to setup">⏹ Stop Game</button>
         </div>
-        <div id="question">Select a difficulty level to start playing! 🎮</div>
-        <div id="answers"></div>
-        <div id="gif-container" style="margin:10px;"></div>
+    <div id="question" class="question-text">Select a difficulty level to start playing! 🎮</div>
+    <div id="answers" class="answers"></div>
+    <div id="gif-container" class="gif-container collapsed"></div>
+    <div id="progress-wrapper" class="progress-wrapper"><div id="progress-bar" class="progress-bar"></div></div>
+    <div id="score-panel" class="score-panel"><div id="score">Player 1: 0 | Player 2: 0</div></div>
         <div id="notification-card" class="notification-card hidden">
             <div class="notification-content">
                 <div class="notification-icon"></div>
@@ -96,7 +98,6 @@
                 <button class="notification-close">×</button>
             </div>
         </div>
-        <div id="score">Player 1: 0 | Player 2: 0</div>
         <button id="restart" style="display:none;">Play Again</button>
         <h2>🏆 Leaderboard</h2>
         <ul id="leaderboard"></ul>
