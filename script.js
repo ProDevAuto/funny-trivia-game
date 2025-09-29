@@ -337,6 +337,12 @@ function updateProgress(){
   if(!bar || !questions.length) return;
   const pct = (current / questions.length) * 100;
   bar.style.width = pct + '%';
+  const txt = document.getElementById('progress-text');
+  if (txt) {
+    txt.textContent = `${current} / ${questions.length}`;
+  }
+  bar.setAttribute('aria-valuenow', Math.round(pct));
+  bar.setAttribute('aria-valuetext', `${current} of ${questions.length}`);
 }
 
 function showNotification(isCorrect, title, message) {

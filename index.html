@@ -86,7 +86,11 @@
     <div id="question" class="question-text">Select a difficulty level to start playing! 🎮</div>
     <div id="answers" class="answers"></div>
     <div id="gif-container" class="gif-container collapsed"></div>
-    <div id="progress-wrapper" class="progress-wrapper"><div id="progress-bar" class="progress-bar"></div></div>
+    <div id="progress-wrapper" class="progress-wrapper" aria-label="Question progress">
+        <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 of 0">
+            <span id="progress-text" class="progress-text">0 / 0</span>
+        </div>
+    </div>
     <div id="score-panel" class="score-panel"><div id="score">Player 1: 0 | Player 2: 0</div></div>
         <div id="notification-card" class="notification-card hidden">
             <div class="notification-content">
