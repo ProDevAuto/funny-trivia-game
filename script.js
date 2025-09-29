@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     initializeSetupScreen();
     displayLeaderboard();
-  initQRShare();
+  initCornerQR();
 });
 
 function initializeSetupScreen() {
@@ -92,102 +92,71 @@ function initializeSetupScreen() {
   }
 }
 
-/* ===== QR / Mobile Share ===== */
-function initQRShare(){
-  const btn = document.getElementById('show-qr');
-  const modal = document.getElementById('qr-modal');
-  const close = document.getElementById('qr-close');
-  const backdrop = document.getElementById('qr-backdrop');
-  const copyBtn = document.getElementById('copy-link');
-  if(!btn || !modal) return;
-  btn.addEventListener('click', () => {
-    openQRModal();
+/* ===== Corner QR (always visible) ===== */
+let cornerQRLastHash = '';
+function initCornerQR(){
+  renderCornerQR();
+  // Re-render QR when settings change via setup buttons or nickname edits
+  document.addEventListener('input', e => {
+    if(e.target && e.target.id.startsWith('nickname-')) renderCornerQR();
   });
-  [close, backdrop].forEach(el=> el && el.addEventListener('click', ()=> hideQRModal()));
-  copyBtn && copyBtn.addEventListener('click', () => copyShareLink());
-  document.addEventListener('keydown', e=> { if(e.key==='Escape' && !modal.classList.contains('hidden')) hideQRModal(); });
+  document.addEventListener('click', e => {
+    // Setup buttons change players/diff/questions
+    if(e.target.classList && e.target.classList.contains('setup-btn')){
+      setTimeout(renderCornerQR, 30);
+    }
+  });
 }
-function openQRModal(){
-  const modal = document.getElementById('qr-modal');
-  modal.classList.remove('hidden');
-  buildShareLinkAndQR();
-}
-function hideQRModal(){
-  document.getElementById('qr-modal').classList.add('hidden');
-}
-function copyShareLink(){
-  const inp = document.getElementById('qr-link');
-  if(!inp) return;
-  inp.select();
-  document.execCommand('copy');
-  const status = document.getElementById('qr-status');
-  if(status){ status.textContent = 'Link copied to clipboard!'; setTimeout(()=> status.textContent='', 1800); }
-}
-function buildShareLinkAndQR(){
-  const status = document.getElementById('qr-status');
-  const linkEl = document.getElementById('qr-link');
-  const qrContainer = document.getElementById('qr-code');
-  if(!linkEl || !qrContainer) return;
-  // Build a sharable URL encoding current pre-game settings (not live sync)
-  const loc = window.location.origin + window.location.pathname; // base file or hosted URL
+function buildShareUrl(){
+  const loc = window.location.origin + window.location.pathname;
   const params = new URLSearchParams();
   params.set('players', gameSettings.players);
   params.set('difficulty', gameSettings.difficulty);
   params.set('questions', gameSettings.questionCount);
   params.set('category', gameSettings.category);
-  // include nicknames (serialize, encodeURIComponent handles spaces)
-  if(gameSettings.nicknames && gameSettings.nicknames.length){
-    params.set('n', gameSettings.nicknames.map(n=> encodeURIComponent(n)).join(','));
-  }
-  const shareUrl = loc + '?' + params.toString();
-  linkEl.value = shareUrl;
-  if(status) status.textContent = 'Generating QR…';
-  generateQRCode(qrContainer, shareUrl);
-  if(status) status.textContent = 'Scan to load these starting settings on another device.';
+  if(gameSettings.nicknames && gameSettings.nicknames.length){ params.set('n', gameSettings.nicknames.map(n=> encodeURIComponent(n)).join(',')); }
+  return loc + '?' + params.toString();
 }
-function generateQRCode(container, text){
-  // Lightweight inline QR generator (no external lib) using canvas
-  container.innerHTML = '';
-  const size = 240;
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = size;
-  container.appendChild(canvas);
-  // Use a tiny QR implementation fallback if available else dynamic import via data URL? Minimal placeholder:
-  // For simplicity here, render a basic pattern if QR lib not present. (Could be replaced with proper lib.)
-  // To keep offline & CSP-friendly, implement minimal QR (Version 1-L) if length short, else show fallback message.
-  if(text.length > 100){
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#fff'; ctx.font = '12px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText('URL too long', size/2, size/2);
-    return;
-  }
-  // Minimal QR algorithm substitute: attempt to use window.QRCode if later added
-  if(window.QRCode){
-    container.removeChild(canvas);
-    new window.QRCode(container, { text, width:size, height:size, correctLevel: window.QRCode.CorrectLevel.M });
-    return;
-  }
-  // Fallback simple block hash (NOT a real QR, placeholder until library integrated)
+function renderCornerQR(){
+  const container = document.querySelector('#corner-qr .corner-qr-inner');
+  if(!container) return;
+  const url = buildShareUrl();
+  const hash = url; // simple hash comparison
+  if(hash === cornerQRLastHash) return;
+  cornerQRLastHash = hash;
+  // draw
+  const canvas = container.querySelector('canvas.corner-qr-canvas');
+  if(canvas){ generateQRCodeCanvas(canvas, url); }
+  container.setAttribute('data-url', url);
+}
+function generateQRCodeCanvas(canvas, text){
+  const size = canvas.width = canvas.height = 120;
   const ctx = canvas.getContext('2d');
   ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,size,size);
-  // Create pseudo matrix
-  const cells = 33; const cellSize = Math.floor(size / cells);
-  function hash(str){ let h=0; for(let i=0;i<str.length;i++){ h = (h*31 + str.charCodeAt(i))>>>0;} return h; }
+  if(window.QRCode){
+    // Replace canvas with library output
+    const parent = canvas.parentElement;
+    parent.removeChild(canvas);
+    const div = document.createElement('div');
+    div.style.width = '120px'; div.style.height='120px';
+    parent.appendChild(div);
+    new window.QRCode(div, { text, width:120, height:120, correctLevel: window.QRCode.CorrectLevel.M });
+    return;
+  }
+  // Placeholder pseudo-code pattern (not real QR) until library added
+  if(text.length > 140){ ctx.fillStyle='#fff'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('Link too long', size/2, size/2); return; }
+  function hash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*33 + str.charCodeAt(i))>>>0;} return h; }
   let seed = hash(text);
+  const cells = 41; const cellSize = Math.floor(size / cells);
   for(let y=0;y<cells;y++){
     for(let x=0;x<cells;x++){
-      seed = (seed * 1664525 + 1013904223) >>> 0;
-      if((seed & 0xF) < 5){
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
-      }
-    }
+      seed = (seed * 1103515245 + 12345)>>>0;
+      if((seed & 0xFF) < 42){ ctx.fillStyle='#ffffff'; ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);}    }
   }
-  ctx.fillStyle = 'rgba(99,102,241,0.25)';
-  ctx.fillRect(0,0,7*cellSize,7*cellSize); // corner marker style
-  ctx.fillRect((cells-7)*cellSize,0,7*cellSize,7*cellSize);
-  ctx.fillRect(0,(cells-7)*cellSize,7*cellSize,7*cellSize);
+  ctx.fillStyle='rgba(99,102,241,0.3)'; ctx.fillRect(0,0,8*cellSize,8*cellSize);
+  ctx.fillRect(size-8*cellSize,0,8*cellSize,8*cellSize); ctx.fillRect(0,size-8*cellSize,8*cellSize,8*cellSize);
 }
+// (Removed old modal QR generation function)
 
 // On load, parse URL params to auto-apply settings (deep link)
 (function applySettingsFromURL(){
