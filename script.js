@@ -359,6 +359,11 @@ function showNotification(isCorrect, title, message) {
   
   // Set style based on correct/wrong and show
   card.className = `notification-card ${isCorrect ? 'correct' : 'wrong'} show`;
+  // Ensure visibility (some mobile screens may have scrolled down)
+  requestAnimationFrame(() => {
+    const y = Math.max(0, card.getBoundingClientRect().top + window.scrollY - 40);
+    window.scrollTo({ top: y, behavior: 'smooth' });
+  });
   
   // Auto-hide after 2 seconds
   const autoHide = setTimeout(() => {
