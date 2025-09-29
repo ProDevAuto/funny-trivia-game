@@ -24,7 +24,6 @@
         <h1>
             <span class="title-emoji" aria-hidden="true">😂</span>
             <span class="title-text">Funny Trivia Game</span>
-            <span class="title-emoji" aria-hidden="true">😂</span>
         </h1>
         
         <!-- Setup Screen -->
@@ -84,17 +83,15 @@
                 <button onclick="selectDifficulty('medium')">Medium</button>
                 <button onclick="selectDifficulty('hard')">Hard</button>
             </div>
-        <div class="game-controls">
-            <div class="status-group">
-                <div id="player-turn">Player 1's Turn</div>
-                <div id="timer">Time: 15</div>
-            </div>
-            <button id="stop-game" class="stop-game-btn" aria-label="Stop current game and return to setup">⏹ Stop Game</button>
+        <div class="game-controls compact">
+            <div id="player-turn">Player 1's Turn</div>
+            <div id="timer">Time: 15</div>
         </div>
     <div id="question" class="question-text">Select a difficulty level to start playing! 🎮</div>
     <div id="answers" class="answers"></div>
     <div id="gif-container" class="gif-container collapsed"></div>
-    <div id="progress-wrapper" class="progress-wrapper" aria-label="Question progress">
+    <div class="progress-title" id="progress-title">Progress</div>
+    <div id="progress-wrapper" class="progress-wrapper" aria-label="Question progress" aria-describedby="progress-title">
         <div id="progress-bar" class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-valuetext="0 of 0">
             <span id="progress-text" class="progress-text">0 / 0</span>
         </div>
@@ -109,6 +106,9 @@
                 </div>
                 <button class="notification-close">×</button>
             </div>
+        </div>
+        <div class="stop-game-wrapper">
+            <button id="stop-game" class="stop-game-btn below" aria-label="Stop current game and return to setup">⏹ Stop Game</button>
         </div>
         <button id="restart" style="display:none;">Play Again</button>
         <h2>🏆 Leaderboard</h2>
@@ -127,7 +127,7 @@
                     <span class="github-icon">⚡</span> View on GitHub
                 </a>
                 <span class="footer-separator">|</span>
-                <span class="version">v1.0</span>
+                <span class="version">v1.1.20250929.1</span>
             </p>
         </div>
     </footer>

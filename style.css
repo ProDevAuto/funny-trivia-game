@@ -427,7 +427,7 @@ button:active {
   border-radius: 50px;
   font-weight: 700;
   font-size: 1.1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.25rem; /* reduced because timer stacks below */
   display: inline-block;
   animation: pulse 2s infinite;
 }
@@ -441,31 +441,12 @@ button:active {
   }
 }
 
-#timer {
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--error-color);
-  margin-bottom: 2rem;
-  text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
-  animation: timerPulse 1s infinite;
-}
+#timer { font-size:1.55rem; font-weight:900; color:var(--error-color); text-shadow:0 0 18px rgba(239,68,68,.5); animation:timerPulse 1s infinite; margin:0 0 .2rem; }
 
 /* Game controls container */
-.game-controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.game-controls .status-group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
+.game-controls { display:flex; flex-direction:column; align-items:flex-start; gap:.35rem; margin:0 0 1.05rem; }
+.game-controls #player-turn { margin:0 0 .1rem; }
+.game-controls #timer { font-size:1.45rem; }
 
 .stop-game-btn {
   background: linear-gradient(135deg, var(--error-color) 0%, #b91c1c 100%);
@@ -496,20 +477,7 @@ button:active {
   outline-offset: 3px;
 }
 
-@media (max-width: 640px) {
-  .game-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .game-controls .status-group {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .stop-game-btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
+@media (max-width:640px){ .game-controls { gap:.3rem; margin-bottom:.95rem; } .game-controls #timer { font-size:1.35rem; } }
 
 @keyframes timerPulse {
   0%, 100% {
@@ -520,21 +488,26 @@ button:active {
   }
 }
 
-#question {
+ #question {
   background: var(--surface);
   border-radius: var(--border-radius);
-  padding: 2rem;
-  margin: 2rem 0;
-  font-size: 1.3rem;
+  padding: 1.4rem 1.6rem;
+  margin: .55rem 0 .55rem; /* more top space after stacked controls */
+  font-size: 1.25rem;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.45;
   border-left: 4px solid var(--secondary-color);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
 
+/* New placement for stop button below progress */
+.stop-game-wrapper { margin:10px 0; }
+.stop-game-btn.below { width:auto; min-width:150px; max-width:240px; }
+@media (max-width:640px){ .stop-game-btn.below { max-width:190px; padding:.6rem .85rem; font-size:.8rem; box-shadow:0 4px 12px rgba(239,68,68,0.32);} }
+
 #gif-container {
   margin: 2rem 0;
-  min-height: 200px;
+  min-height: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -887,13 +860,7 @@ button:focus-visible {
 }
 
 /* ===== Mobile Layout Enhancements for Game Screen ===== */
-.answers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.75rem;
-  margin-bottom: 0.6rem; /* pull progress bar closer */
-}
+.answers { display:flex; flex-direction:column; gap:.65rem; margin-top:.65rem; margin-bottom:.3rem; }
 
 .gif-container {
   transition: height 0.35s ease, opacity 0.35s ease;
@@ -908,8 +875,8 @@ button:focus-visible {
 .gif-container.show { height: 120px; opacity: 1; }
 .gif-container img { max-height: 110px; width: auto; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4)); }
 
-.progress-wrapper {
-  margin: 0.25rem 0 0.75rem; /* reduce vertical space */
+.progress-title { font-size:.72rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:rgba(255,255,255,0.55); margin:.1rem 0 .25rem; }
+.progress-wrapper {  margin: 0 0 0.5rem; /* align with new title spacing */
   background: linear-gradient(90deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
   border-radius: 8px;
   height: 16px; /* taller so it clearly reads as progress */
