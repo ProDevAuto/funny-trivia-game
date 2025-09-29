@@ -357,18 +357,28 @@ function showNotification(isCorrect, title, message) {
   messageEl.textContent = message;
   iconEl.textContent = isCorrect ? '✅' : '❌';
   
-  // Set style based on correct/wrong and show
+  // Dynamic vertical offset: place below player turn/timer row
+  const gameContainer = document.querySelector('.game-container');
+  let offset = 0;
+  const turnEl = document.getElementById('player-turn');
+  if (turnEl) {
+    const rect = turnEl.getBoundingClientRect();
+    offset = (rect.bottom - (gameContainer?.getBoundingClientRect().top || 0)) + 12; // 12px gap
+  } else {
+    offset = 16;
+  }
+  card.style.top = offset + 'px';
+
+  // Set style based on correct/wrong and show (enable pointer events while visible)
   card.className = `notification-card ${isCorrect ? 'correct' : 'wrong'} show`;
-  // Ensure visibility (some mobile screens may have scrolled down)
-  requestAnimationFrame(() => {
-    const y = Math.max(0, card.getBoundingClientRect().top + window.scrollY - 40);
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  });
-  
-  // Auto-hide after 2 seconds
-  const autoHide = setTimeout(() => {
-    hideNotification();
-  }, 2000);
+  card.style.pointerEvents = 'auto';
+
+  // Optional auto-focus for accessibility
+  titleEl.setAttribute('tabindex','-1');
+  titleEl.focus({preventScroll:true});
+
+  // Auto-hide after 2.5 seconds
+  const autoHide = setTimeout(() => { hideNotification(); }, 2500);
   
   // Close button functionality
   closeBtn.onclick = () => {
@@ -390,6 +400,7 @@ function hideNotification() {
   card.classList.remove('show');
   setTimeout(() => {
     card.className = 'notification-card hidden';
+    card.style.pointerEvents = 'none';
   }, 300);
 }
 
