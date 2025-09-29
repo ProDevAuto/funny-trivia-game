@@ -96,6 +96,11 @@ function initializeSetupScreen() {
 let cornerQRLastHash = '';
 function initCornerQR(){
   renderCornerQR();
+  // Hide on small/mobile screens (JS fallback in addition to CSS) or touch-only devices
+  if (isLikelyMobile()) {
+    const cqr = document.getElementById('corner-qr');
+    if (cqr) cqr.style.display = 'none';
+  }
   // Re-render QR when settings change via setup buttons or nickname edits
   document.addEventListener('input', e => {
     if(e.target && e.target.id.startsWith('nickname-')) renderCornerQR();
@@ -120,6 +125,7 @@ function buildShareUrl(){
 function renderCornerQR(){
   const container = document.querySelector('#corner-qr .corner-qr-inner');
   if(!container) return;
+  if (isLikelyMobile()) return; // skip work
   const url = buildShareUrl();
   const hash = url; // simple hash comparison
   if(hash === cornerQRLastHash) return;
@@ -135,6 +141,9 @@ function renderCornerQR(){
   img.style.width = '120px'; img.style.height = '120px';
   container.appendChild(img);
   container.setAttribute('data-url', url);
+}
+function isLikelyMobile(){
+  return (window.innerWidth <= 820) || ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 1);
 }
 // Removed local placeholder QR implementation (now using external API image)
 // (Removed old modal QR generation function)

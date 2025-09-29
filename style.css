@@ -348,11 +348,12 @@ h2 {
 }
 
 /* Corner QR (always visible) */
-.corner-qr { position:fixed; top:12px; right:12px; z-index:2500; width:132px; height:132px; display:flex; align-items:center; justify-content:center; background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.15); border-radius:22px; backdrop-filter:blur(12px) saturate(150%); box-shadow:0 8px 28px -6px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.05); transition:var(--transition); }
+.corner-qr { position:fixed; top:12px; right:12px; z-index:2500; width:150px; padding:10px 10px 12px; display:flex; flex-direction:column; gap:6px; align-items:center; justify-content:flex-start; background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.15); border-radius:22px; backdrop-filter:blur(12px) saturate(150%); box-shadow:0 8px 28px -6px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.05); transition:var(--transition); }
+.corner-qr-label { margin:0; font-size:0.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; background:linear-gradient(135deg,var(--primary-color),var(--secondary-color)); -webkit-background-clip:text; background-clip:text; color:transparent; text-align:center; }
 .corner-qr-inner { padding:6px; border-radius:16px; background:rgba(15,23,42,0.6); display:flex; }
 .corner-qr-canvas { width:120px; height:120px; image-rendering:pixelated; }
 .corner-qr:hover { transform:translateY(-2px) scale(1.015); box-shadow:0 14px 38px -6px rgba(0,0,0,0.65),0 0 0 1px rgba(255,255,255,0.08); }
-@media (max-width:640px){ .corner-qr { width:108px; height:108px; } .corner-qr-canvas { width:96px; height:96px; } }
+@media (max-width:820px){ .corner-qr { display:none; } }
 
 button {
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
