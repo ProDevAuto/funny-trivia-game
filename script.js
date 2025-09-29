@@ -124,38 +124,19 @@ function renderCornerQR(){
   const hash = url; // simple hash comparison
   if(hash === cornerQRLastHash) return;
   cornerQRLastHash = hash;
-  // draw
-  const canvas = container.querySelector('canvas.corner-qr-canvas');
-  if(canvas){ generateQRCodeCanvas(canvas, url); }
+  // Replace existing child with <img> pointing to external QR API (real QR code)
+  const existing = container.querySelector('img, canvas');
+  if(existing) existing.remove();
+  const img = document.createElement('img');
+  const encoded = encodeURIComponent(url);
+  img.src = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encoded}`;
+  img.alt = 'QR code to open this trivia setup on mobile';
+  img.width = 120; img.height = 120;
+  img.style.width = '120px'; img.style.height = '120px';
+  container.appendChild(img);
   container.setAttribute('data-url', url);
 }
-function generateQRCodeCanvas(canvas, text){
-  const size = canvas.width = canvas.height = 120;
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#0f172a'; ctx.fillRect(0,0,size,size);
-  if(window.QRCode){
-    // Replace canvas with library output
-    const parent = canvas.parentElement;
-    parent.removeChild(canvas);
-    const div = document.createElement('div');
-    div.style.width = '120px'; div.style.height='120px';
-    parent.appendChild(div);
-    new window.QRCode(div, { text, width:120, height:120, correctLevel: window.QRCode.CorrectLevel.M });
-    return;
-  }
-  // Placeholder pseudo-code pattern (not real QR) until library added
-  if(text.length > 140){ ctx.fillStyle='#fff'; ctx.font='10px sans-serif'; ctx.textAlign='center'; ctx.fillText('Link too long', size/2, size/2); return; }
-  function hash(str){ let h=0; for(let i=0;i<str.length;i++){ h=(h*33 + str.charCodeAt(i))>>>0;} return h; }
-  let seed = hash(text);
-  const cells = 41; const cellSize = Math.floor(size / cells);
-  for(let y=0;y<cells;y++){
-    for(let x=0;x<cells;x++){
-      seed = (seed * 1103515245 + 12345)>>>0;
-      if((seed & 0xFF) < 42){ ctx.fillStyle='#ffffff'; ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);}    }
-  }
-  ctx.fillStyle='rgba(99,102,241,0.3)'; ctx.fillRect(0,0,8*cellSize,8*cellSize);
-  ctx.fillRect(size-8*cellSize,0,8*cellSize,8*cellSize); ctx.fillRect(0,size-8*cellSize,8*cellSize,8*cellSize);
-}
+// Removed local placeholder QR implementation (now using external API image)
 // (Removed old modal QR generation function)
 
 // On load, parse URL params to auto-apply settings (deep link)
