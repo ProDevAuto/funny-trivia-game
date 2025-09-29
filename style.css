@@ -501,7 +501,7 @@ button:active {
 }
 
 /* New placement for stop button below progress */
-.stop-game-wrapper { margin:10px 0; }
+.stop-game-wrapper { margin:20px 0; }
 .stop-game-btn.below { width:auto; min-width:150px; max-width:240px; }
 @media (max-width:640px){ .stop-game-btn.below { max-width:190px; padding:.6rem .85rem; font-size:.8rem; box-shadow:0 4px 12px rgba(239,68,68,0.32);} }
 
