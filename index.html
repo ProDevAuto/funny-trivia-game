@@ -67,8 +67,10 @@
                     <button class="setup-btn" data-questions="20">20 Questions</button>
                 </div>
             </div>
-            
-            <button id="start-game" class="start-game-btn">🚀 Start Game!</button>
+            <div class="setup-actions">
+              <button id="show-qr" type="button" class="share-btn" aria-haspopup="dialog" aria-controls="qr-modal">📱 Mobile / QR</button>
+              <button id="start-game" class="start-game-btn">🚀 Start Game!</button>
+            </div>
         </div>
         
         <!-- Game Screen (initially hidden) -->
@@ -109,6 +111,22 @@
         <ul id="leaderboard"></ul>
         </div> <!-- Close game-screen -->
     </div> <!-- Close game-container -->
+
+        <!-- QR Share Modal -->
+        <div id="qr-modal" class="qr-modal hidden" role="dialog" aria-modal="true" aria-labelledby="qr-title">
+            <div class="qr-modal-content">
+                <button class="qr-close" id="qr-close" aria-label="Close QR share window">×</button>
+                <h3 id="qr-title">📱 Share / Play on Mobile</h3>
+                <div id="qr-status" class="qr-status"></div>
+                <div id="qr-code" class="qr-code" aria-hidden="true"></div>
+                <div class="qr-link-wrapper">
+                    <input id="qr-link" class="qr-link" type="text" readonly aria-label="Shareable session link" />
+                    <button id="copy-link" type="button" class="copy-link-btn">Copy</button>
+                </div>
+                <p class="qr-hint">Scan with your phone camera. If you change settings, re-open this window for an updated link. Multiple devices will run separate local copies (no real-time sync yet).</p>
+            </div>
+            <div class="qr-backdrop" id="qr-backdrop"></div>
+        </div>
     
     <!-- Footer -->
     <footer class="game-footer">
