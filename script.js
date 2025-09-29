@@ -95,12 +95,7 @@ function initializeSetupScreen() {
 /* ===== Corner QR (always visible) ===== */
 let cornerQRLastHash = '';
 function initCornerQR(){
-  renderCornerQR();
-  // Hide on small/mobile screens (JS fallback in addition to CSS) or touch-only devices
-  if (isLikelyMobile()) {
-    const cqr = document.getElementById('corner-qr');
-    if (cqr) cqr.style.display = 'none';
-  }
+  handleQRVisibility();
   // Re-render QR when settings change via setup buttons or nickname edits
   document.addEventListener('input', e => {
     if(e.target && e.target.id.startsWith('nickname-')) renderCornerQR();
@@ -110,6 +105,12 @@ function initCornerQR(){
     if(e.target.classList && e.target.classList.contains('setup-btn')){
       setTimeout(renderCornerQR, 30);
     }
+  });
+  // Update on resize (debounced)
+  let qrResizeTO;
+  window.addEventListener('resize', () => {
+    clearTimeout(qrResizeTO);
+    qrResizeTO = setTimeout(handleQRVisibility, 120);
   });
 }
 function buildShareUrl(){
@@ -125,7 +126,7 @@ function buildShareUrl(){
 function renderCornerQR(){
   const container = document.querySelector('#corner-qr .corner-qr-inner');
   if(!container) return;
-  if (isLikelyMobile()) return; // skip work
+  if (isLikelyMobile()) return; // hidden on small screens
   const url = buildShareUrl();
   const hash = url; // simple hash comparison
   if(hash === cornerQRLastHash) return;
@@ -143,7 +144,18 @@ function renderCornerQR(){
   container.setAttribute('data-url', url);
 }
 function isLikelyMobile(){
-  return (window.innerWidth <= 820) || ('maxTouchPoints' in navigator && navigator.maxTouchPoints > 1);
+  // Only rely on width; touch laptops should still show QR on large screens
+  return window.innerWidth <= 820;
+}
+function handleQRVisibility(){
+  const cqr = document.getElementById('corner-qr');
+  if(!cqr) return;
+  if(isLikelyMobile()){
+    cqr.style.display = 'none';
+  } else {
+    cqr.style.display = 'flex';
+    renderCornerQR();
+  }
 }
 // Removed local placeholder QR implementation (now using external API image)
 // (Removed old modal QR generation function)
